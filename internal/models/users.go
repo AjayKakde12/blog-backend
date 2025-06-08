@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+type Credentials struct {
+	ID       int64
+	UserName string `json:"user_name" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Role     string `json:"role"`
+}
+
 type Users struct {
 	ID        int64
 	UserName  string    `json:"user_name" binding:"required"`
@@ -31,4 +38,14 @@ func (u *Users) Create() error {
 		return errors.New("query failed at execution stage")
 	}
 	return err
+}
+
+func (c Credentials) GetUserByUserName() (Credentials, error) {
+	query := `SELECT id, user_name, password, role FROM users WHERE user_name = ?`
+	row := database.DB.QueryRow(query, c.UserName)
+	err := row.Scan(&c.ID, &c.UserName, &c.Password, &c.Role)
+	if err != nil {
+		return Credentials{}, err
+	}
+	return c, nil
 }

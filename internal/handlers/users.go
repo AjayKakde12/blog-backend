@@ -25,3 +25,20 @@ func CreateUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
+
+func Login(c *gin.Context) {
+	var credentials models.Credentials
+	err := c.ShouldBindJSON(&credentials)
+	if err != nil {
+		fmt.Println("Invalid data in request body:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Please check user details"})
+		return
+	}
+	token, err := services.LoginUser(credentials)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
+}
