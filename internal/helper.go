@@ -2,15 +2,22 @@ package internal
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secretKey = "TOP_SECRET_KEY"
+var secretKey = os.Getenv("SECRET_KEY")
 
 func Hash(input string) (string, error) {
-	byteHash, err := bcrypt.GenerateFromPassword([]byte(input), 14)
+	var byteHash []byte
+	cost, err := strconv.ParseInt(os.Getenv("HASH_COST"), 10, 64)
+	if err != nil {
+		return "", err
+	}
+	byteHash, err = bcrypt.GenerateFromPassword([]byte(input), int(cost))
 	return string(byteHash), err
 }
 
